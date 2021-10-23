@@ -91,12 +91,16 @@ contract Main {
         return userInfo;
     }
 
-    function getShopList() public view returns ( Shop[] memory ) {
+    function getShopList ( ) public view returns ( Shop[] memory ) {
         return SHOPS;
     }
     
-    function getAllComments( string memory _shopName ) public view returns ( Comment[] memory ) {
+    function getAllComments ( string memory _shopName ) public view returns ( Comment[] memory ) {
         return comments[ _shopName ];
+    }
+    
+    function getAllAnswers ( uint _commentId ) public view returns ( Answer[] memory ) {
+        return answers[ _commentId ];
     }
 
     function register( string memory _login, string memory _password, string memory _rpassword ) public returns( User memory ) {
