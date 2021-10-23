@@ -14,6 +14,7 @@ contract Main {
     mapping ( string => Shop ) private shops;
     mapping ( string => User[] ) public sellers;
     mapping ( string => Comment[] ) public comments;
+    mapping ( uint => Answer[] ) public answers;
     
     Shop[] public SHOPS;
     
@@ -34,6 +35,7 @@ contract Main {
     }
     
     struct Comment {
+        uint id;
         string body;
         string senderLogin;
         uint like;
@@ -41,6 +43,7 @@ contract Main {
     }
     
     struct Answer {
+        uint id;
         string body;
         string senderLogin;
         uint like;
@@ -90,6 +93,10 @@ contract Main {
 
     function getShopList() public view returns ( Shop[] memory ) {
         return SHOPS;
+    }
+    
+    function getAllComments( string memory _shopName ) public view returns ( Comment[] memory ) {
+        return comments[ _shopName ];
     }
 
     function register( string memory _login, string memory _password, string memory _rpassword ) public returns( User memory ) {
@@ -195,5 +202,27 @@ contract Main {
     
     /* ONLY BUYER */
     
+    function makeComment( string memory _shopName, string memory _comment ) public {
+        User memory userinfo = addressToUser[ msg.sender ];
+        
+        if( userinfo.state == STATE.BUYER ) {
+            comments[ _shopName ].push( Comment( block.timestamp, _comment, userinfo.login, 0, 0) );
+        }
+    }
     
+    function makeAnswer( string memory _shopName, uint _commentId, string memory _answer ) public {
+        User memory userinfo = addressToUser[ msg.sender ];
+        User[] memory shopSellers = sellers[ _shopName ];
+        
+        bool isSeller = false;
+        for ( uint i = 0; i < shopSellers.length; i++ ) {
+            if( keccak256( abi.encodePacked( shopSellers[i].login ) )  == keccak256( abi.encodePacked( userinfo.login ) ) ) {
+                isSeller = true;
+            }
+        }
+        
+        if( userinfo.state == STATE.BUYER || isSeller ) {
+            answers[ _commentId ].push( Answer( answers[ _commentId ].length, _answer, userinfo.login, 0, 0 ) );
+        }
+    }
 }
